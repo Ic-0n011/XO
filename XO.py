@@ -18,7 +18,8 @@ class Game():
         self.player_2 = Player(p2, "O")
         self.field = Field()
 
-    def run(self):
+    def run(self) -> None:
+        # Основной Цикл игры
         moves = 1
         while True:
             self.field.draw()
@@ -29,31 +30,33 @@ class Game():
                 self.player_2.make_move(self.field.cells, self.field.victories)
                 if self.field.get_result():
                     self.field.draw()
-                    #input("Нолики выйграли! Нажмите Enter что бы закрыть программу")
+                    input("Нолики выйграли! Нажмите Enter что бы закрыть программу")
                     break
             else:
                 self.player_1.make_move(self.field.cells, self.field.victories)
                 if self.field.get_result():
                     self.field.draw()
-                    #input("Крестики выйграли! Нажмите Enter что бы закрыть программу")
+                    input("Крестики выйграли! Нажмите Enter что бы закрыть программу")
                     break
             moves += 1
         
 
-
 class Field():
     def __init__(self) -> None:
+        # Класс поле, хранит в себе клетки и 8 выйгрышных позиций
         self.cells = [i for i in range(1, 10)]
         self.victories = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],
                           [1,4,7],[2,5,8],[0,4,8],[2,4,6]]
 
-    def draw(self):
+    def draw(self) -> None:
+        # рисует поле
         system("cls")
         for i in range(0, 8, 3):
             print(f"{self.cells[i]} | {self.cells[i+1]} | {self.cells[i+2]} ")
             print("—   —   —")
     
-    def get_result(self):
+    def get_result(self) -> bool:
+        # проверяет есть ли выйгрышная ситуация на поле
         for i in self.victories:
             if self.cells[i[0]] == "X" and self.cells[i[1]] == "X" and self.cells[i[2]] == "X":
                 return True
@@ -64,33 +67,37 @@ class Field():
 
 class Player():
     def __init__(self, is_automatic=True, img=None) -> None:
+        # Класс игрок, игрок может управляться как человеком так и роботом
         self.is_automatic = is_automatic
         self.img = img
 
-    def make_move(self, field, victories):
+    def make_move(self, field, victories) -> None:
+        # делает ход, если это:
         if self.is_automatic:
-            # РОБОТ
-            step = ""
+            # РОБОТ - проверка нескольких вариантов
+            step = None
             # 1) если на какой либо из победных линий 2 свои фигуры и 0 чужих - ставим
             step = self.check_line(2, 0, field, victories)
             # 2) если на какой либо из победных линий 2 чужие фигуры и 0 своих - ставим
-            if step == "":
+            if step == None:
                 step =  self.check_line(0, 2, field, victories)        
             # 3) если 1 фигура своя и 0 чужих - ставим
-            if step == "":
+            if step == None:
                 step =  self.check_line(1,0, field, victories)     
             # 4) центр пуст, то занимаем центр
-            if step == "":
+            if step == None:
                 if field[4] != "X" and field[4] != "O":
                     step = 5
             # 5) если центр занят, то занимаем первую ячейку
-            if step == "":
+            if step == None:
                 if field[0] != "X" and field[0] != "O":
                     step = 1
-            if step == "":
+            # 6) если ход первый
+            if step == None:
                 step = randint(1, 9)
-            index = (int(step) - 1)
+            index = (step - 1)
         else:
+            # ЧЕЛОВЕК - цикл в котором игрок выбирает ход
             while True:
                 try:
                     step = int(input(f'Введите номер клетки {self.img}: '))
@@ -107,8 +114,8 @@ class Player():
                 break
         field[index] = self.img
     
-    def check_line(self, sum_O, sum_X, field, victories):
-        step = ""
+    def check_line(self, sum_O, sum_X, field, victories) -> int | None:
+        step = None
         for line in victories:
             o = 0
             x = 0
@@ -130,6 +137,7 @@ class App():
         self.game.run()
 
 
+# цикл для выбора кол-во игроков
 while True:
     print("ВЫБЕРИТЕ КОЛЛИЧЕСТВО ИГРОКОВ")
     print("0 - игроков; 1 - игроков; , 2 - игроков;")
@@ -142,4 +150,5 @@ while True:
         break
     else:
         print("Ошибка! Число игроков не допустимо, всего игроков может быть от 0 до 3!")
+
 App(number_of_players)
