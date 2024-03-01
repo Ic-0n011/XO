@@ -9,12 +9,12 @@ vec2 = pg.math.Vector2
 CELL_CENTER = vec2(CELL_SIZE / 2)
 
 
-class TicTacToe:
+class XO_game:
     def __init__(self, game):
         self.game = game
-        self.field_image = self.get_scaled_image(path='resources/field.png', res=[WIN_SIZE] * 2)
-        self.O_image = self.get_scaled_image(path='resources/o.png', res=[CELL_SIZE] * 2)
-        self.X_image = self.get_scaled_image(path='resources/x.png', res=[CELL_SIZE] * 2)
+        self.field_image = self.get_scaled_image(path='resurse/field.png', res=[WIN_SIZE] * 2)
+        self.O_image = self.get_scaled_image(path='resurse/o.png', res=[CELL_SIZE] * 2)
+        self.X_image = self.get_scaled_image(path='resurse/x.png', res=[CELL_SIZE] * 2)
 
         self.game_array = [[INF, INF, INF],
                            [INF, INF, INF],
@@ -92,10 +92,10 @@ class Game:
         pg.init()
         self.screen = pg.display.set_mode([WIN_SIZE] * 2)
         self.clock = pg.time.Clock()
-        self.tic_tac_toe = TicTacToe(self)
+        self.xo_game = XO_game(self)
 
     def new_game(self):
-        self.tic_tac_toe = TicTacToe(self)
+        self.xo_game = XO_game(self)
 
     def check_events(self):
         for event in pg.event.get():
@@ -108,7 +108,7 @@ class Game:
 
     def run(self):
         while True:
-            self.tic_tac_toe.run()
+            self.xo_game.run()
             self.check_events()
             pg.display.update()
             self.clock.tick(60)

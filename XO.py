@@ -3,43 +3,44 @@ from random import randint, choice
 
 
 class Game():
-    def __init__(self, number_of_players) -> None: # TODO: переделать робот/человек 
-        p1 = True  # Зачем дефолты, для трех игроков?
-        p2 = True
-        if number_of_players == 2:
-            p1 = False  # Это не ПЭодин, а is_automatic
-            p2 = False
-        elif number_of_players == 1:
-            if randint(1, 2) == 1:
-                p1 = False
-            else:
-                p2 = False
-        self.player_1 = Player(p1, "X")
-        self.player_2 = Player(p2, "O")
+    def __init__(self, number_of_players) -> None: # TODO: переделать робот/человек
+        self.players = []
+        self.img_players = ["X", "O"]
+        if number_of_players == 1:
+            player1 = Player(False, self.img_players[0])
+            player2 = Player(img=self.img_players[1])
+            self.players.append(player1)
+            self.players.append(player2)
+        elif number_of_players == 2:
+            player1 = Player(False, self.img_players[0])
+            player2 = Player(False, self.img_players[1])
+            self.players.append(player1)
+            self.players.append(player2)
+        else:
+            for i in range(2):
+                player = Player(img=self.img_players[i-1])
+                self.players.append(player)
         self.field = Field()
 
     def run(self) -> None:
         """Основной Цикл игры"""
-        moves = 1
         while True:
-            self.field.draw()
-            if moves > 9:
-                #input("Ничья! Нажмите Enter что бы закрыть программу")
-                qwer = "?"
-                break
-            elif moves % 2 == 0:  # DRY в elif и else
-                self.player_2.make_move(self.field.cells, self.field.victories)
-                if self.field.get_result():
-                    self.field.draw()
-                    #input("Нолики выйграли! Нажмите Enter что бы закрыть программу")  # Хардкод: если создать игрока '+', то все равно будут нолики
-                    break
-            else:
-                self.player_1.make_move(self.field.cells, self.field.victories)
-                if self.field.get_result():
-                    self.field.draw()
-                    #input("Крестики выйграли! Нажмите Enter что бы закрыть программу")
-                    break
-            moves += 1
+            for t in range(9):
+                self.field.draw()
+                if t % 2 == 0:  # DRY в elif и else
+                    self.players[0].make_move(self.field.cells, self.field.victories)
+                    if self.field.get_result():
+                        self.field.draw()
+                        input(f"{self.players[0].img} выйграли! Нажмите Enter что бы закрыть программу")
+                        break
+                else:
+                    self.players[1].make_move(self.field.cells, self.field.victories)
+                    if self.field.get_result():
+                        self.field.draw()
+                        input(f"{self.players[1].img} выйграли! Нажмите Enter что бы закрыть программу")
+                        break
+            input("Ничья! Нажмите Enter что бы закрыть программу")
+            break
 
 
 class Field():
@@ -132,8 +133,8 @@ class Player():
 
 class App():
     def __init__(self) -> None:
-        self.new_game()
-        self.game = Game(0)
+        number_of_players = self.new_game()
+        self.game = Game(number_of_players)
         self.game.run()
 
     def new_game(self):
@@ -147,7 +148,7 @@ class App():
                 print("Ошибка! Наипишите целое число от 0 до 2!")
             if number_of_players == 0 or number_of_players == 1 or number_of_players == 2:
                 self.number_of_players = number_of_players
-                break
+                return number_of_players
             else:
                 print("Ошибка! Число игроков не допустимо, всего игроков может быть от 0 до 2!")
 
