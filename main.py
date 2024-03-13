@@ -5,22 +5,24 @@ from random import randint
 WIN_SIZE = 400
 CELL_SIZE = WIN_SIZE // 3
 INF = float('inf')
-vec2 = pg.math.Vector2
+vec2 = pg.math.Vector2  # !
 CELL_CENTER = vec2(CELL_SIZE / 2)
 
 
 class XO_game:
     def __init__(self, game):
         self.game = game
+        """загрузка изображений"""
         self.field_image = self.get_scaled_image(path='resurse/field.png', res=[WIN_SIZE] * 2)
         self.O_image = self.get_scaled_image(path='resurse/o.png', res=[CELL_SIZE] * 2)
         self.X_image = self.get_scaled_image(path='resurse/x.png', res=[CELL_SIZE] * 2)
 
+        """создание поля"""
         self.game_array = [[INF, INF, INF],
                            [INF, INF, INF],
                            [INF, INF, INF]]
         self.player = randint(0, 1)
-
+        """выйгрышные ситуации (по индекксам)"""
         self.line_indices_array = [[(0, 0), (0, 1), (0, 2)],
                                    [(1, 0), (1, 1), (1, 2)],
                                    [(2, 0), (2, 1), (2, 2)],
@@ -34,14 +36,18 @@ class XO_game:
         self.font = pg.font.SysFont('Verdana', CELL_SIZE // 4, True)
 
     def check_winner(self):
+        """проверка выйгрышной ситуации на поле"""
         for line_indices in self.line_indices_array:
             sum_line = sum([self.game_array[i][j] for i, j in line_indices])
             if sum_line in {0, 3}:
                 self.winner = 'XO'[sum_line == 0]
-                self.winner_line = [vec2(line_indices[0][::-1]) * CELL_SIZE + CELL_CENTER,
-                                    vec2(line_indices[2][::-1]) * CELL_SIZE + CELL_CENTER]
+                self.winner_line = [
+                    vec2(line_indices[0][::-1]) * CELL_SIZE + CELL_CENTER,
+                    vec2(line_indices[2][::-1]) * CELL_SIZE + CELL_CENTER
+                                    ]
 
     def run_game_process(self):
+        """проверка игровых процессов включая клик мыши"""
         current_cell = vec2(pg.mouse.get_pos()) // CELL_SIZE
         col, row = map(int, current_cell)
         left_click = pg.mouse.get_pressed()[0]
@@ -53,51 +59,57 @@ class XO_game:
             self.check_winner()
 
     def draw_objects(self):
+        """рисовка обьектов"""
         for y, row in enumerate(self.game_array):
             for x, obj in enumerate(row):
                 if obj != INF:
                     self.game.screen.blit(self.X_image if obj else self.O_image, vec2(x, y) * CELL_SIZE)
 
     def draw_winner(self):
+        """печатает кто выйграл на экране"""
         if self.winner:
             pg.draw.line(self.game.screen, 'red', *self.winner_line, CELL_SIZE // 8)
             label = self.font.render(f'Player "{self.winner}" wins!', True, 'white', 'black')
             self.game.screen.blit(label, (WIN_SIZE // 2 - label.get_width() // 2, WIN_SIZE // 4))
 
     def draw(self):
+        """прорисовка экрана и игровых обьектов"""
         self.game.screen.blit(self.field_image, (0, 0))
         self.draw_objects()
         self.draw_winner()
 
     @staticmethod
     def get_scaled_image(path, res):
+        """подгон размера картинки"""
         img = pg.image.load(path)
         return pg.transform.smoothscale(img, res)
 
-    def print_caption(self):
+    def print_caption(self) -> None:
+        """изменяет обложку для показа кто ходит и закончилась ли игра"""
         pg.display.set_caption(f'Player "{"OX"[self.player]}" turn!')
         if self.winner:
             pg.display.set_caption(f'Player "{self.winner}" wins! Press Space to Restart')
         elif self.game_steps == 9:
             pg.display.set_caption('Game Over! Press Space to Restart')
 
-    def run(self):
+    def run(self) -> None:
+        """обработка игровых процессов"""
         self.print_caption()
         self.draw()
         self.run_game_process()
 
 
 class Game:
-    def __init__(self):
+    def __init__(self) -> None:
         pg.init()
         self.screen = pg.display.set_mode([WIN_SIZE] * 2)
         self.clock = pg.time.Clock()
         self.xo_game = XO_game(self)
 
-    def new_game(self):
+    def new_game(self) -> None:
         self.xo_game = XO_game(self)
 
-    def check_events(self):
+    def check_events(self) -> None:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -106,7 +118,7 @@ class Game:
                 if event.key == pg.K_SPACE:
                     self.new_game()
 
-    def run(self):
+    def run(self) -> None:
         while True:
             self.xo_game.run()
             self.check_events()
@@ -114,6 +126,5 @@ class Game:
             self.clock.tick(60)
 
 
-if __name__ == '__main__':
-    game = Game()
-    game.run()
+game = Game()
+game.run()
